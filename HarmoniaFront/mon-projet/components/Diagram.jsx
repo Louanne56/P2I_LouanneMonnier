@@ -38,34 +38,36 @@ const Diagram = () => {
     }, []);
     
     // Fonction pour jouer le son d'un accord
-    const playChordSound = async (accordId, accordNom, audioFile, audioFile2) => {
-      if (!audioFile) {
+    const playChordSound = async (accordNom, audioFile, audioFile2) => {
+      let audioUrl = '';
+      if (audioFile) {
+        audioUrl = `http://localhost:5007/audio/${audioFile}.mp3`; // Assurez-vous que le format de fichier est correct, ici j'ajoute `.mp3`
+      } else if (audioFile2) {
+        audioUrl = `http://localhost:5007/audio/${audioFile2}.mp3`; // Assurez-vous que le format de fichier est correct
+      } else {
         Alert.alert('Information', `Pas d'audio disponible pour l'accord ${accordNom}`);
         return;
       }
-      
+    
       try {
-        // On utilise la même structure d'URL que pour les images
-        const audioUrl = `http://localhost:5007/wwroot/audio/${audioFile}`;
-        
-        // Utilisation d'expo-av pour la lecture audio
         const { sound } = await Audio.Sound.createAsync({ uri: audioUrl });
         await sound.playAsync();
-        
-        // Libération de la ressource après la lecture
+    
         sound.setOnPlaybackStatusUpdate(status => {
           if (status.didJustFinish) {
             sound.unloadAsync();
           }
         });
-        
+    
         console.log(`Lecture de l'accord: ${accordNom}`);
       } catch (error) {
         console.error('Erreur lors de la lecture audio:', error);
         Alert.alert('Erreur', `Impossible de lire l'audio pour l'accord ${accordNom}`);
       }
     };
-  
+    
+    
+    
     const styles = StyleSheet.create({
       container: {
         flex: 1,
@@ -146,34 +148,42 @@ const Diagram = () => {
       <ScrollView style={styles.container}>
         <Text style={styles.title}>Accords de Guitare</Text>
         <View style={styles.gridContainer}>
-          {accords.map(accord => (
-            <TouchableOpacity 
-              key={accord.id} 
-              style={styles.chordCard}
-              activeOpacity={0.7}
-            >
-              <View style={styles.imageContainer}>
-                <TouchableOpacity 
-                  style={styles.volumeIcon}
-                  onPress={() => playChordSound(accord.id, accord.nom, accord.audio, accord.audio2)}
-                >
-                  <Icon name="volume-up" size={14} color="#3498db" />
-                </TouchableOpacity>
-                <Image
-                  source={{ uri: `http://localhost:5007/wwroot/images/${accord.diagram1}` }}
-                  style={styles.chordImage}
-                  onError={(e) => {
-                    console.error('Erreur de chargement de l\'image', e.nativeEvent.error);
-                    Alert.alert('Erreur', `Impossible de charger l'image ${accord.diagram1}`);
-                  }}
-                />
-              </View>
-              {/* Le nom de l'accord a été supprimé ici */}
-            </TouchableOpacity>
-          ))}
+          {accords.map(accord => {
+            // Crée un tableau des diagrammes de l'accord
+            const diagrams = [];
+            if (accord.diagram1) diagrams.push(accord.diagram1);
+            if (accord.diagram2) diagrams.push(accord.diagram2);
+    
+            return diagrams.map((diagram, index) => (
+              <TouchableOpacity 
+                key={`${accord.id}-${index}`} // Une clé unique pour chaque diagramme
+                style={styles.chordCard}
+                activeOpacity={0.7}
+              >
+                <View style={styles.imageContainer}>
+                  <TouchableOpacity 
+                    style={styles.volumeIcon}
+                    onPress={() => playChordSound(accord.id, accord.nom, accord.audio, accord.audio2)}
+                  >
+                    <Icon name="volume-up" size={14} color="#3498db" />
+                  </TouchableOpacity>
+    
+                  {/* Affichage de l'image du diagramme */}
+                  <Image
+                    source={{ uri: `http://localhost:5007/images/${encodeURIComponent(diagram)}` }}
+                    style={styles.chordImage}
+                    onError={(e) => {
+                      console.error(`Erreur de chargement de l'image ${diagram}`, e.nativeEvent.error);
+                    }}
+                  />
+                </View>
+              </TouchableOpacity>
+            ));
+          })}
         </View>
       </ScrollView>
     );
-  };
+    }
+    
   
   export default Diagram;
