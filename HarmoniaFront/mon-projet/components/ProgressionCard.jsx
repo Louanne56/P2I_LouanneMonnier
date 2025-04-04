@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Modal, Image } from 'react-native';
 import BoutonFavoris from './BoutonFavoris';
+import { getResourceUrl } from '../services/apiService'; // Utilisation de la fonction adaptée
 
-// Assure-toi que tu as bien importé l'URL de ton API
-import { API_URL } from '../services/apiConfig'; // Assurez-vous que le chemin est correct
 const ProgressionCard = ({ progression, isFavorite, onToggleFavorite }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedAccord, setSelectedAccord] = useState(null);
@@ -11,12 +10,6 @@ const ProgressionCard = ({ progression, isFavorite, onToggleFavorite }) => {
   const handleAccordPress = (accord) => {
     setSelectedAccord(accord);
     setModalVisible(true);
-  };
-
-  // Fonction pour obtenir l'URL de l'image en fonction de l'accord
-  const getAccordImageUrl = (accord) => {
-    // Construire l'URL de l'image en fonction de l'accord
-    return `${API_URL.replace('/api', '')}/images/${accord}.png`; // URL dynamique du backend
   };
 
   return (
@@ -44,7 +37,7 @@ const ProgressionCard = ({ progression, isFavorite, onToggleFavorite }) => {
           <View style={styles.modalContent}>
             {selectedAccord && (
               <Image
-                source={{ uri: getAccordImageUrl(selectedAccord) }} // Utiliser l'URL dynamique
+                source={{ uri: getResourceUrl(`/images/${selectedAccord}.png`) }} // Utilisation de getResourceUrl
                 style={styles.accordImage}
                 resizeMode="contain"
               />

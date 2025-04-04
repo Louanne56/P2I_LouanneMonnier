@@ -5,6 +5,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { AuthProvider } from './services/AuthContext';
+import { FavoritesProvider } from './services/FavoritesContext'; // Importer le FavoritesProvider
 
 // Import des pages
 import Connexion from './pages/Connexion';
@@ -51,25 +52,27 @@ const TabNavigator = () => {
 const App = () => {
   return (
     <AuthProvider>
-      <NavigationContainer>
-        <Stack.Navigator initialRouteName="Connexion">
-          <Stack.Screen 
-            name="Connexion" 
-            component={Connexion} 
-            options={{ headerShown: true }}
-          />
-          <Stack.Screen 
-            name="Inscription" 
-            component={Inscription} 
-            options={{ headerShown: true }}
-          />
-          <Stack.Screen 
-            name="MainTabs" 
-            component={TabNavigator} 
-            options={{ headerShown: false }}
-          />
-        </Stack.Navigator>
-      </NavigationContainer>
+      <FavoritesProvider> {/* Enrouler l'app avec FavoritesProvider */}
+        <NavigationContainer>
+          <Stack.Navigator initialRouteName="Connexion">
+            <Stack.Screen 
+              name="Connexion" 
+              component={Connexion} 
+              options={{ headerShown: true }}
+            />
+            <Stack.Screen 
+              name="Inscription" 
+              component={Inscription} 
+              options={{ headerShown: true }}
+            />
+            <Stack.Screen 
+              name="MainTabs" 
+              component={TabNavigator} 
+              options={{ headerShown: false }}
+            />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </FavoritesProvider>
     </AuthProvider>
   );
 };

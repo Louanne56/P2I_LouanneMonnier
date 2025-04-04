@@ -1,10 +1,11 @@
+import axios from 'axios';
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Text, FlatList, ActivityIndicator, Alert } from 'react-native';
-import axios from 'axios';
 import { useAuth } from "../services/AuthContext";
 import ProgressionCard from '../components/ProgressionCard';
-import { API_URL } from '../services/apiConfig';
-
+import { getUserFavorites, toggleFavoriteAPI } from '../services/apiService';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_URL } from '../services/apiConfig'; // Assurez-vous que le chemin est correct
 
 const FavoritePage = () => {
   const [favorites, setFavorites] = useState([]);
@@ -21,19 +22,19 @@ const FavoritePage = () => {
       setError("Vous devez être connecté pour voir vos favoris");
     }
   }, [userId]);
-
+  
   const fetchFavorites = async () => {
     try {
       setLoading(true);
       const url = `${API_URL}/suites-favorites/user/${userId}`;
-      console.log("URL COMPLÈTE:", url);
+      console.log("URL API utilisée:", url);
       const response = await axios.get(url);
   
       if (response.data) {
-        console.log("Favorites data:", response.data);
+        console.log("Données favorites reçues:", JSON.stringify(response.data, null, 2));
         setFavorites(response.data);
       }
-      
+  
       setLoading(false);
     } catch (err) {
       console.error("Erreur lors de la récupération des favoris:", err);
@@ -41,13 +42,16 @@ const FavoritePage = () => {
       setLoading(false);
     }
   };
+  
 
   const toggleFavorite = async (progression) => {
     try {
+      const token = await AsyncStorage.getItem('token'); // Récupération du token
       const progressionId = progression.progressionAccords.id;
-      await axios.delete(`${API_URL}/suites-favorites/user/${userId}/progression/${progressionId}`);
+      
+      await toggleFavoriteAPI(userId, progressionId, token, true);
 
-      // Mettre à jour la liste après suppression
+      // Mise à jour de la liste après suppression
       setFavorites(prevFavorites => prevFavorites.filter(fav => fav.progressionAccords.id !== progressionId));
 
       Alert.alert("Succès", "Progression retirée des favoris");
