@@ -41,9 +41,9 @@ const Diagram = () => {
     const playChordSound = async (accordNom, audioFile, audioFile2) => {
       let audioUrl = '';
       if (audioFile) {
-        audioUrl = `http://localhost:5007/audio/${audioFile}.mp3`; // Assurez-vous que le format de fichier est correct, ici j'ajoute `.mp3`
+        audioUrl = `http://192.168.1.20:5007/audio/${audioFile}.mp3`; // Assurez-vous que le format de fichier est correct, ici j'ajoute `.mp3`
       } else if (audioFile2) {
-        audioUrl = `http://localhost:5007/audio/${audioFile2}.mp3`; // Assurez-vous que le format de fichier est correct
+        audioUrl = `http://192.168.1.20:5007/audio/${audioFile2}.mp3`; // Assurez-vous que le format de fichier est correct
       } else {
         Alert.alert('Information', `Pas d'audio disponible pour l'accord ${accordNom}`);
         return;
@@ -170,8 +170,7 @@ const Diagram = () => {
     
                   {/* Affichage de l'image du diagramme */}
                   <Image
-                    source={{ uri: `http://localhost:5007/images/${encodeURIComponent(diagram)}` }}
-                    style={styles.chordImage}
+                    source={{ uri: `http://192.168.1.20:5007/images/${encodeURIComponent(diagram)}` }}                    style={styles.chordImage}
                     onError={(e) => {
                       console.error(`Erreur de chargement de l'image ${diagram}`, e.nativeEvent.error);
                     }}
