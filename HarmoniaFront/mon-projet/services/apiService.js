@@ -81,7 +81,7 @@ export const getUserFavorites = async (userId, token) => {
     const response = await apiClient.get(`/suites-favorites/user/${userId}`, {
       headers: token ? { Authorization: `Bearer ${token}` } : {}
     });
-    return response.data.map(fav => fav.progressionAccordsId);
+    return response.data
   } catch (error) {
     console.error('Erreur dans getUserFavorites:', error);
     throw error;
@@ -109,15 +109,16 @@ export const toggleFavoriteAPI = async (userId, progressionId, token, isFavorite
   }
 };
 
-// Fonction utilitaire pour obtenir l'URL complète d'une ressource (images, fichiers, etc.)
 export const getResourceUrl = (path) => {
   if (!path) return null;
   // Si le chemin commence déjà par http ou https, on le retourne tel quel
   if (path.startsWith('http://') || path.startsWith('https://')) {
     return path;
   }
-  // Sinon on préfixe avec l'URL de base
-  return `${BASE_URL}${path.startsWith('/') ? path : `/${path}`}`;
+  // Construire l'URL de base sans le chemin /api
+  const baseUrl = BASE_URL || API_URL.replace('/api', '');
+  // Normaliser le chemin pour éviter les doubles slashes
+  return `${baseUrl}${path.startsWith('/') ? path : `/${path}`}`;
 };
 
 // Exporter l'instance axios pour une utilisation ailleurs si nécessaire
