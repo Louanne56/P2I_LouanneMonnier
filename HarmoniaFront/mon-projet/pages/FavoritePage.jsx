@@ -6,6 +6,9 @@ import ProgressionCard from '../components/ProgressionCard';
 import { getUserFavorites, toggleFavoriteAPI } from '../services/apiService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_URL } from '../services/apiConfig'; // Assurez-vous que le chemin est correct
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback } from 'react';
+
 
 const FavoritePage = () => {
   const [favorites, setFavorites] = useState([]);
@@ -14,14 +17,23 @@ const FavoritePage = () => {
   const { user } = useAuth();
   const userId = user?.id;
 
-  useEffect(() => {
+  /*useEffect(() => {
     if (userId) {
       fetchFavorites();
     } else {
       setLoading(false);
       setError("Vous devez être connecté pour voir vos favoris");
     }
-  }, [userId]);
+  }, [userId]);*/
+
+  useFocusEffect(
+    useCallback(() => {
+      if (userId) {
+        fetchFavorites();
+      }
+    }, [userId])
+  );
+  
   
   const fetchFavorites = async () => {
     try {
@@ -176,5 +188,4 @@ const styles = StyleSheet.create({
 });
 
 export default FavoritePage;
-
 
