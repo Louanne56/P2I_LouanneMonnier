@@ -39,17 +39,14 @@ const FavoritePage = () => {
     try {
       setLoading(true);
       const url = `${API_URL}/suites-favorites/user/${userId}`;
-      console.log("URL API utilisée:", url);
       const response = await axios.get(url);
   
       if (response.data) {
-        console.log("Données favorites reçues:", JSON.stringify(response.data, null, 2));
         setFavorites(response.data);
       }
   
       setLoading(false);
     } catch (err) {
-      console.error("Erreur lors de la récupération des favoris:", err);
       setError("Impossible de charger vos favoris. Veuillez réessayer plus tard.");
       setLoading(false);
     }
@@ -83,7 +80,6 @@ const FavoritePage = () => {
 
   const renderItem = ({ item }) => {
     if (!isValidProgression(item)) {
-      console.error("Progression invalide:", item);
       return null;
     }
   

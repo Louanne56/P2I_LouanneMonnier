@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from "react-native";
 import { useAuth } from "../services/AuthContext";
@@ -24,18 +25,17 @@ const Connexion = ({ navigation }) => {
         motDePasse
       });
       
-      console.log("Réponse du serveur:", response.data);
       
       // Stockage des informations utilisateur et du token dans le contexte
       await login({
         user: response.data.utilisateur,
-        token: response.data.token
+        token: response.data.token,
+        refreshToken: response.data.refreshToken
       });
       
       Alert.alert("Connexion réussie", `Bienvenue ${response.data.utilisateur.pseudo} !`);
       navigation.navigate("MainTabs");
     } catch (error) {
-      console.error("Erreur de connexion:", error.response?.data || error.message);
       
       // Message d'erreur approprié selon le type d'erreur
       if (error.response?.status === 401) {

@@ -7,8 +7,9 @@ const FavoritesContext = createContext();
 export const useFavorites = () => useContext(FavoritesContext);
 
 export const FavoritesProvider = ({ children }) => {
-  const { user, token } = useAuth();
+  const { user } = useAuth();
   const [favorites, setFavorites] = useState([]);
+  const [favoriteIds, setFavoriteIds] = useState([]);
 
   useEffect(() => {
     if (user?.id) {
@@ -18,37 +19,43 @@ export const FavoritesProvider = ({ children }) => {
 
   const loadUserFavorites = async () => {
     try {
-      const favs = await getUserFavorites(user.id, token);
+      const favs = await getUserFavorites(user.id);
       setFavorites(favs);
+      // Extraire les IDs des progressions pour une vérification facile
+      setFavoriteIds(favs.map(fav => fav.progressionAccords.id));
     } catch (err) {
       console.error("Erreur lors du chargement des favoris:", err);
     }
   };
 
-  const toggleFavorite = async (progression) => {
-    try {
-      const isFavorite = favorites.includes(progression.id);
-      await toggleFavoriteAPI(user.id, progression.id, token, isFavorite);
-  
-      // Mise à jour immédiate du tableau des favoris sans recharger depuis l'API
-      setFavorites(prevFavorites => {
-        if (isFavorite) {
-          // Si c'était un favori, on le retire de la liste
-          return prevFavorites.filter(fav => fav !== progression.id);
-        } else {
-          // Sinon, on l'ajoute à la liste
-          return [...prevFavorites, progression.id];
-        }
-      });
-    } catch (err) {
-      console.error("Erreur lors de la mise à jour des favoris:", err);
+  // Dans FavoritesContext.js
+const toggleFavorite = async (progression) => {
+  try {
+    const isFavorite = favoriteIds.includes(progression.id);
+    await toggleFavoriteAPI(user.id, progression.id, isFavorite);
+    
+    if (isFavorite) {
+      // Mise à jour optimiste de l'UI avant confirmation du serveur
+      setFavoriteIds(prev => prev.filter(id => id !== progression.id));
+      setFavorites(prev => prev.filter(fav => fav.progressionAccords.id !== progression.id));
+    } else {
+      // Pour l'ajout, on peut faire une mise à jour optimiste partielle
+      setFavoriteIds(prev => [...prev, progression.id]);
+      
+      // Et ensuite récupérer l'objet complet du serveur
+      const updatedFavorites = await getUserFavorites(user.id);
+      setFavorites(updatedFavorites);
     }
-  };
+  } catch (err) {
+    // En cas d'erreur, restaurer l'état précédent
+    console.error("Erreur lors de la mise à jour des favoris:", err);
+    loadUserFavorites(); // Recharger l'état correct
+  }
+};
 
   return (
-    <FavoritesContext.Provider value={{ favorites, toggleFavorite }}>
+    <FavoritesContext.Provider value={{ favorites, favoriteIds, toggleFavorite }}>
       {children}
     </FavoritesContext.Provider>
   );
-}; 
- 
+};

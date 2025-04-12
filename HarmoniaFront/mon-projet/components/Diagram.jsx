@@ -11,7 +11,6 @@ import {
   Alert
 } from 'react-native';
 import { Audio } from 'expo-av';
-import { API_URL, BASE_URL } from '../services/apiConfig';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { api, getResourceUrl } from '../services/apiService';
 
@@ -22,7 +21,6 @@ const Diagram = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Utilisation de l'instance axios configurée
     api.get('/accords')
       .then(response => {
         setAccords(response.data);
@@ -74,7 +72,6 @@ const Diagram = () => {
     container: {
       flex: 1,
       backgroundColor: '#f4f4f8',
-      paddingTop: 20,
     },
     title: {
       fontSize: 24,

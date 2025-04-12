@@ -27,7 +27,8 @@ const styleData = [
 
 const Home = () => {
   const { user, token } = useAuth();
-  const { favorites, toggleFavorite } = useFavorites(); // Utilisation du contexte des favoris
+  //const { favorites, toggleFavorite } = useFavorites(); // Utilisation du contexte des favoris
+  const { favoriteIds, toggleFavorite } = useFavorites();
   const [note, setNote] = useState(null);
   const [mode, setMode] = useState(null);
   const [style, setStyle] = useState(null);
@@ -73,7 +74,7 @@ const Home = () => {
           <ProgressionCard
             key={progression.id}
             progression={progression}
-            isFavorite={favorites.includes(progression.id)} // Vérifier si c'est un favori
+            isFavorite={favoriteIds.includes(progression.id)} // Vérifier si c'est un favori
             onToggleFavorite={() => toggleFavorite(progression)} // Ajouter/retirer des favoris via le contexte
           />
         ))}
